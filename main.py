@@ -1,5 +1,4 @@
-import pygame, front, menu, Game
+import pygame, front, menu2
 front.front()
-menu.menu(menu.element_menu,menu.element_xy)
-Game.game()
+menu2.menu()
 pygame.quit()
