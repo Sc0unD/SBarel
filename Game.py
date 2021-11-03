@@ -1,12 +1,17 @@
-import pygame
-pygame.init()
+import pygame as pg
+pg.init()
+pg.display.set_caption("Game")
+x=0
+y=0
 def game():
-      screen = pygame.display.set_mode([1920,1080])
-      pygame.display.flip()
+      screen = pg.display.set_mode([1280,720])
+      screen.fill([255,255,255])
+      pg.display.flip()
       running=True
+      player = pg.image.load('Textures/Front_image.jpg')
+      player = pg.transform.scale(player,(50,50))
       while running:
-            for event in pygame.event.get():
-                  if event.type == pygame.KEYDOWN:
-                        running = False
-                  elif event.type == pygame.QUIT:
-                        pygame.quit()
+            screen.blit(player,[x,y])
+            for event in pg.event.get():
+                  if event.type == pg.QUIT:
+                        pg.quit()

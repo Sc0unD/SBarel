@@ -1,25 +1,37 @@
-import pygame
-from pygame.color import THECOLORS
-from pygame import font
-pygame.init()
-pygame.display.set_caption("Front")
+import pygame as pg
+pg.init()
+pg.display.set_caption("Front")
+
 def front():
-    font = pygame.font.Font(None, 40)
-    text = font.render("Press any key",True, THECOLORS ["grey"])
-    screen = pygame.display.set_mode([800, 600])
 
-    front = pygame.image.load('front.jpeg')
-    front = pygame.transform.scale(front, (800 ,600))
-    screen.blit(front,[0,0])
-    screen.blit(text,[300,550])
-    pygame.display.flip()
+    koef = 0
+    shag = 1.5
+
+    font = pg.font.Font(None, 55)
+    
+    screen = pg.display.set_mode([1280, 720])
+
+    image = pg.image.load('Textures/Front_image.jpg')
+    image = pg.transform.scale(image, (1280, 720))
 
 
+    screen.blit(image,[0,0])
+
+    
     running=True
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
+        text = font.render("Press any key",True, [200-koef,200-koef,200-koef])
+        if koef>=0:
+            koef+=shag
+            if koef>=199:
+                shag=-shag
+            elif koef<=1:
+                shag=-shag
+        screen.blit(text,[500,650])
+        pg.display.flip()
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN or event.type == pg.MOUSEBUTTONDOWN:
                 running = False
-            elif event.type == pygame.QUIT:
-                pygame.quit()
-
+            elif event.type == pg.QUIT:
+                pg.quit()
+        pg.time.delay(19)

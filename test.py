@@ -1,0 +1,17 @@
+import pygame as pg
+pg.init()
+scr = pg.display.set_mode((1280,720))
+fire_img = pg.image.load('Textures/res/fire.jpg')
+fire_img = pg.transform.scale(fire_img, (1280,720))
+sf = pg.Surface((1280, 720))
+light = pg.Surface((1280, 720))
+light.fill((125,125,125))
+fire_img.blit(light,(0,0), special_flags=pg.BLEND_RGB_SUB)
+
+scr.blit(fire_img, (0,0))
+sf.fill('black')
+sf.blit(pg.font.SysFont(None, 250).render('ПРИВЕТ МИР', False, 'white'), (50,200))
+sf.set_colorkey('white')
+scr.blit(sf, (0,0))
+pg.display.flip()
+input()
