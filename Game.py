@@ -13,7 +13,7 @@ def enemyinfo(x,y,xenemy,yenemy):
       if 0<y-yenemy>=-720: yenemy+=stepenemy
       if xenemy==x+50 and yenemy==y: attack=True
       if xenemy==x-50 and yenemy==y: attack=True
-      return xenemy, yenemy
+      return xenemy, yenemy,stepenemy
 
 
 
@@ -33,7 +33,7 @@ def game():
       enemy = pg.transform.scale(pg.image.load('Textures/enemy.png'),(50,50))
       player = pg.transform.scale(pg.image.load('Textures/Res/Player.png'),(50,50))
       while True:
-            xenemy,yenemy=enemyinfo(x,y,xenemy,yenemy)
+            xenemy,yenemy,stepenemy=enemyinfo(x,y,xenemy,yenemy)
             screen.fill([255,255,255])
             pg.draw.rect(screen, [150,150,150], [0, 280, 1280, 720], 0)
             screen.blit(player,[x,y])
