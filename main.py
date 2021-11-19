@@ -1,5 +1,6 @@
-import pygame, front, menu, game
+import pygame, Front, menu, Game
 pygame.display.set_caption("Main")
-front.front()
+Front.front()
 menu.menu()
-game.game()
+Game.game()
+
