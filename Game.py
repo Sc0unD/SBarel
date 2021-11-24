@@ -1,22 +1,26 @@
 import pygame as pg
-import time
+import time, importlib
+
 pg.init()
 pg.display.set_caption("Game")
 screen = pg.display.set_mode([1280,720])
-clock = pg.time.Clock()
 
 
 class Enemy_:
-      def __init__(self,way,xenemy,yenemy,stepenemy):
+      def __init__(self,way,xenemy,yenemy,stepenemy,health_player,attack_delay):
             self.enemy=pg.transform.scale(pg.image.load(way),(50,50))
             self.posx=xenemy
             self.posy=yenemy
             self.stepenemy=stepenemy*60
             self.attack_start=False
             self.zdorovie=100
-            self.damage=90
-            self.attack_timer=500
-
+            self.damage=60
+            self.attack_timer=117
+            self.attack_delay = attack_delay
+            self.weight=1280
+            self.weight_max=self.weight
+            self.health_player = health_player
+            self.otnoshenie=(self.health_player-self.damage)/self.health_player
       def move(self,x,y,delta):
             if abs(self.posx-x)<=300:
                   if self.posx>x+50: self.posx-=self.stepenemy*delta
@@ -30,19 +34,30 @@ class Enemy_:
             screen.blit(self.enemy,[self.posx,self.posy])
             
 
-      def attack(self,health,weight):
-            self.health_taken = health
-            if self.attack_start and self.attack_timer:
-                  health-=self.damage
-                  self.health_taken = health
+      def attack(self):
 
-                  weight-=weight/100*self.damage
-            if health==0:
-                  self.posx=0
-            self.attack_timer-=1
-            if self.attack_timer==0:
-                  self.attack_timer=500
-            pg.draw.rect(screen, [255,0,0], [0,150, weight, 10], 0)
+            if self.attack_start and self.attack_timer==self.attack_delay:
+                  self.health_player-=self.damage
+                  self.attack_timer-=1           
+                  self.weight-=self.weight_max*(1-self.otnoshenie)
+            if self.attack_timer<self.attack_delay: 
+                  self.attack_timer-=1 
+                  if self.attack_timer==0:
+                        self.attack_timer=self.attack_delay
+            pg.draw.rect(screen, [255,0,0], [0,150, self.weight, 10], 0)
+            pg.display.flip()
+            if self.health_player<=0:
+                  run=True
+                  while run:
+                        screen.fill([255,255,255])
+                        pg.display.flip()
+                        for event in pg.event.get():
+                              if event.type == pg.KEYDOWN:
+                                    if event.key == pg.K_SPACE:
+                                          run=False
+                                          game()
+
+           
 
 
 
@@ -52,7 +67,7 @@ def game():
       
       x=0
       y=360
-      step = 4*60
+      step = 4
       xenemy=1128
       yenemy=360
       right,left,up,down=False,False,False,False
@@ -62,7 +77,7 @@ def game():
       last_time=time.time()
 
       player = pg.transform.scale(pg.image.load('Textures/Res/Player.png'),(50,50))
-      enemy_unknown=Enemy_('Textures/enemy.png',xenemy,yenemy,3.8)
+      enemy_unknown=Enemy_('Textures/enemy.png',xenemy,yenemy,3.8,100,117)
 
 
 
@@ -84,7 +99,7 @@ def game():
                   if y>=668: down=False
                   else: y+=step*delta
      
-            if charge: step=6*600
+            if charge: step=7*60
             elif not charge: step=4*60
 
             for event in pg.event.get():
@@ -95,22 +110,22 @@ def game():
                                     player = pg.transform.flip(player,True,False)
                                     look_right=True
                         
-                        elif event.key == pg.K_a:
+                        if event.key == pg.K_a:
                               left=True
                               if look_right==True:
                                     player = pg.transform.flip(player,True,False)
                                     look_right=False
-                        elif event.key == pg.K_w: 
+                        if event.key == pg.K_w: 
                               up=True
-                        elif event.key == pg.K_s: 
+                        if event.key == pg.K_s: 
                               down=True
                         if event.key==pg.K_LSHIFT: 
                               charge=True
                   if event.type == pg.KEYUP:
                         if event.key == pg.K_d: right=False
-                        elif event.key == pg.K_a: left=False
-                        elif event.key == pg.K_w: up=False
-                        elif event.key == pg.K_s: down=False
+                        if event.key == pg.K_a: left=False
+                        if event.key == pg.K_w: up=False
+                        if event.key == pg.K_s: down=False
                         if event.key==pg.K_LSHIFT: charge=False
                   if event.type == pg.QUIT: quit()
 
@@ -119,7 +134,7 @@ def game():
             pg.draw.rect(screen, [150,150,150], [0, 280, 1280, 720], 0)
             screen.blit(player,[x,y])
             enemy_unknown.move(x,y,delta)
-            enemy_unknown.attack(100,1280)
+            enemy_unknown.attack()
 
             pg.display.flip()
             pg.time.delay(int(1/60*1000))
