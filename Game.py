@@ -30,21 +30,23 @@ class Enemy:
             self.attack_delay = attack_timer
             self.distanciaX=rd(40,60)
             self.distanciaY=rd(15,35)
-            self.stay_timer=150
+            self.stay_timer=500
             self.s=[1,-1]
             self.ss=self.s[rd(0,1)]
             
       def move(self,x,y,delta):
             if abs(self.posx-x)<=300:
-                  if self.posx>x+self.distanciaX: self.posx-=self.stepenemy*delta
-                  if self.posx<x-self.distanciaX: self.posx+=self.stepenemy*delta
-                  if self.posy>y+self.distanciaY: self.posy-=self.stepenemy*delta
-                  if self.posy<y-self.distanciaY: self.posy+=self.stepenemy*delta
                   self.presledovanie=True
                   self.ss=self.s[rd(0,1)]
                   self.stay_timer=150
             else: 
                   self.presledovanie=False
+            
+            if self.presledovanie:
+                  if self.posx>x+self.distanciaX: self.posx-=self.stepenemy*delta
+                  if self.posx<x-self.distanciaX: self.posx+=self.stepenemy*delta
+                  if self.posy>y+self.distanciaY: self.posy-=self.stepenemy*delta
+                  if self.posy<y-self.distanciaY: self.posy+=self.stepenemy*delta
                   
             if not self.presledovanie:
                   if self.stay_timer>0:
@@ -249,9 +251,9 @@ def game():
                   pg.time.wait(300)
                   death()
 
-
+            print(time.time()-last_time)
 #Delay            
-            pg.time.wait(int(1/60*1000))
+            # pg.time.wait(int(1/60*1000-(time.time()-last_time)))
 
 
 
