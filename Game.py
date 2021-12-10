@@ -13,7 +13,7 @@ health_player=max_health
 
 
 class Enemy:
-      def __init__(self,attack_timer=111,damage=rd(30,80)):
+      def __init__(self,attack_timer=120,damage=rd(2,10)):
             self.posx=rd(700,1200)
             self.posy=rd(320,650)
             self.modify=rd(45,60)
@@ -28,7 +28,7 @@ class Enemy:
             self.damage=damage
             self.attack_timer=attack_timer
             self.attack_delay = attack_timer
-            self.distanciaX=rd(40,60)
+            self.distanciaX=self.modify
             self.distanciaY=rd(15,35)
             self.stay_timer=500
             self.s=[1,-1]
@@ -57,11 +57,12 @@ class Enemy:
                         elif self.ss==-1:
                               self.posx-=self.stepenemy*delta
                   if self.posx<=10 or self.posx>=1200:
-                        # self.stay_timer=150
-                        self.ss=self.ss*-1
+                        self.presledovanie=None
+                        self.stay_timer=150
+                        self.ss=self.ss*(-1)
                   
                   
-            if abs(x-self.posx)<=50 and abs(y-self.posy)<=40:
+            if abs(x-self.posx)<=self.modify and abs(y-self.posy)<=40:
                   self.attack_start=True
             elif abs(self.posx-x)>50 or abs(y-self.posy)>=40:
                   self.attack_start=False
@@ -81,11 +82,13 @@ class Enemy:
                   if self.attack_timer<=0:
                         self.attack_timer=self.attack_delay
       
-      def damage_taken(self,attack_player,damage_player):
-            if attack_player:
+      def damage_taken(self,player,attack_player,damage_player,x,y):
+            xbar=self.posx+self.enemy.get_size()[0]/2-self.hp_bar_cur/2
+            ybar=self.posy-8
+            if attack_player and abs(x-self.posx)<=65 and abs((y+player.get_size()[1]/2)-(self.posy+self.enemy.get_size()[1]/2))<=35:
                   self.health_enemy-=damage_player
             self.hp_bar_cur=self.hp_bar_max*(self.health_enemy/self.health_enemy_max)
-            pg.draw.rect(screen, [255,0,0],[(self.posx+(self.size/2))-self.hp_bar_cur/2 ,self.posy-8,self.hp_bar_cur,5],0)
+            pg.draw.rect(screen, [255,0,0],[xbar,ybar,self.hp_bar_cur,5],0)
 
 
                         
@@ -161,30 +164,37 @@ def game():
       charge=False
       attack=False
       damage=90
-      weigth_health_bar=200
+      weigth_health_bar=95
+      weigth=weigth_health_bar
+      attack_delay=1000
+      attack_timer=attack_delay
+
       
 
       player = pg.transform.scale(pg.image.load('Textures/Res/Player.png'),(50,50))
+      # player = pg.transform.scale(pg.image.load('Textures/Player1.png'),(50,50))
+      # weapon = player = pg.transform.scale(pg.image.load('Textures/Weapon.png'),(25,25))
+
+      health_bar=pg.image.load('Textures/Health_bar1.png')
+      proporcia=health_bar.get_size()[1]/health_bar.get_size()[0]
+      health_bar=pg.transform.scale(health_bar,(150,int(150*proporcia)))
+
+      shout = pg.transform.scale(pg.image.load('Textures/Res/Shout1.png'),(40,40))
 
 
 
-      kolvo=rd(1,5)
-      enemyes=[0]*kolvo
-      for i in range(kolvo):
+      enemyes=[0]*rd(15,15)
+      for i in range(len(enemyes)):
             enemyes[i]=Enemy()
 
 
       last_time=time.time()
 
       while True:
-
-            # health=enemyes[0].attack(health)
-
             delta=time.time()-last_time
             last_time=time.time()
-
-#Move            
-            
+            attack=False 
+#Move                        
             if right:                
                   if x>=1228: right=False
                   else: x+=step*delta
@@ -200,6 +210,7 @@ def game():
      
             if charge: step=7*60
             elif not charge: step=4*60
+
 
             for event in pg.event.get():
                   if event.type == pg.KEYDOWN:
@@ -226,23 +237,42 @@ def game():
                         if event.key == pg.K_w: up=False
                         if event.key == pg.K_s: down=False
                         if event.key==pg.K_LSHIFT: charge=False
+                        
                   if event.type == pg.QUIT: quit()
 
+                  if event.type == pg.MOUSEBUTTONDOWN:
+                        attack=True
+                        attack_timer-=1
 
+
+            if attack_timer<attack_delay:
+                  attack_timer-=1
+            if attack_timer<=0:
+                  attack_timer=attack_delay
 
 
 #Draw
             screen.fill([255,255,255])
             pg.draw.rect(screen, [150,150,150], [0, 280, 1280, 720], 0)
+
             screen.blit(player,[x,y])
-            for i in range(kolvo):
+
+            screen.blit(shout,(x,y))
+
+            screen.blit(health_bar,(25,25))
+            pg.draw.rect(screen, [255,0,0], [76,39.5,weigth,19], 0)
+            
+            # screen.blit(weapon,[x+50,y+25])
+            for i in range(len(enemyes)):
                   enemyes[i].move(x,y,delta)
                   enemyes[i].attack()
-                  enemyes[i].damage_taken(attack,damage)
-            # enemy1.move(x,y,delta)
-            # enemy2.move(x,y,delta)
+                  enemyes[i].damage_taken(player,attack,damage,x,y)
+            for i in enemyes:
+                  if i.health_enemy<=0:
+                        del enemyes[enemyes.index(i)]
+
             weigth = weigth_health_bar*(health_player/max_health)
-            pg.draw.rect(screen, [255,0,0], [30,30,weigth,13], 0)
+            
             pg.display.flip()
 #Health
             
@@ -251,9 +281,14 @@ def game():
                   pg.time.wait(300)
                   death()
 
-            print(time.time()-last_time)
-#Delay            
-            # pg.time.wait(int(1/60*1000-(time.time()-last_time)))
+
+#Delay      
+            
+
+            # clock = pg.time.Clock()
+            # clock.tick(60)
+
+            pg.time.Clock().tick(60)
 
 
 

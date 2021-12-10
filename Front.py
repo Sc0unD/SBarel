@@ -10,7 +10,6 @@ def front():
     font = pg.font.Font(None, 55)
     
     screen = pg.display.set_mode([1280, 720])
-
     image = pg.image.load('Textures/Front_image.jpg')
     image = pg.transform.scale(image, (1280, 720))
 
