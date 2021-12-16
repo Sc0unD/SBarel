@@ -1,4 +1,5 @@
 import pygame as pg
+import menu
 pg.init()
 pg.display.set_caption("Front")
 
@@ -31,6 +32,7 @@ def front():
         for event in pg.event.get():
             if event.type == pg.KEYDOWN or event.type == pg.MOUSEBUTTONDOWN:
                 running = False
+                menu.menu()
             elif event.type == pg.QUIT:
                 pg.quit()
         pg.time.delay(19)
